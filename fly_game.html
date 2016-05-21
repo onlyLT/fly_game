@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<link rel="stylesheet" type="text/css" href="css/normalize.css"/>
+		<link rel="stylesheet" type="text/css" href="css/main.css"/>		
+		<link href="css/spin_loader.css" rel="stylesheet" type="text/css">
+		<style>
+		#start,
+		#loose,
+		#win {
+			position: absolute;
+			top: 0;
+			left: 0;
+			display: none;
+		}
+		
+		html {
+			/*height: 100%;*/
+		}
+		
+		body {
+			height: 100%;
+			width: 100%;
+			margin:0;
+			overflow: hidden;
+		}
+		#startUi {
+			display: block;
+		}
+		#winUi,#gameEnding,#looseUi {
+			display: none;
+		}
+		
+		.map-level {
+			position: absolute;
+			z-index: 100;
+			bottom:20px;
+			right: 34px;
+			color: #efefef;
+			font-size:24px ;
+		}
+		
+		/*.wrapper {
+			display: block;
+			position: absolute;
+			z-index: 100;
+			left: 50%;
+			bottom: 20px;
+		}
+		*/
+		.distance {
+			position: absolute;
+			z-index: 100;
+			top:20px;
+			right: 34px;
+			color: #efefef;
+			font-size:24px ;
+		}
+		.speed{
+			position: absolute;
+			z-index: 100;
+			bottom:20px;
+			left: 34px;
+			color: #efefef;
+			font-size:24px ;
+			color:#fff;
+		}
+		.game-ending{
+			display:none;
+		}
+		canvas{
+			position: absolute;
+			top:0;
+			z-index:-1
+		}
+		.loadingText{
+			position:absolute;
+			width:300px;
+			height:200px;
+			left: 45%;
+			top: 68%;
+			z-index:100;
+			
+			color:#fff;
+		}
+	</style>
+
+	</head>
+
+	<body>
+		<!--<div class="bird-loader">
+			<div class="bird animate-bird">
+
+				<div class="big"></div>
+				<div class="middle"></div>
+				<div class="small"></div>
+			</div>
+		</div>-->
+						
+<div id="startUi" >
+
+		<div id="loader-wrapper" class="loader-wrapper">
+
+			<div id="loader" class="loader"></div>
+			<h3 class="loadingText">读取中。。。。</h3>
+		</div>
+		
+		<div class="bird-loader">
+		<div class="bird animate-bird">
+		
+			<div class="big"></div>
+			<div class="middle"></div>
+			<div class="small"></div>
+		</div>
+		</div>
+		<div class="btn-wrapper">
+			<a href="#" class="play-button " id="play-button" onclick="Game.start()" >Play</a>
+		</div>		
+		<div class="btn-wrapper">
+			<a href="#" class="setting-btn"  >设置</a>
+		</div>
+		<div class="keytip-wrapper">
+		<div class="keytips">
+			<p><strong>方向控制</strong>：W、A、S、D<br><strong>加速</strong>：空格键space</>
+		</div>
+		</div>
+	</div>
+<!--winUi---------------------->	
+	<div id="winUi" >	
+		<div class="bird-loader">
+		<div class="bird animate-bird">
+		
+			<div class="big"></div>
+			<div class="middle"></div>
+			<div class="small"></div>
+		</div>
+		</div>
+		<div class="btn-wrapper">
+			<a href="#" class="play-button " id="play-button" onclick="Game.start()" >进入下一关</a>
+		</div>		
+		<!--<div class="btn-wrapper">
+			<a href="#" class="setting-btn"  >设置</a>
+		</div>
+		<div class="keytip-wrapper">
+		<div class="keytips">
+			<p><strong>方向控制</strong>：W、A、S、D<br><strong>加速</strong>：空格键space</>
+		</div>
+		</div>-->
+	</div>
+	<!--gameEnding----------->
+	<div id="gameEnding">
+			<div class="bird-loader">
+		<div class="bird animate-bird">
+		
+			<div class="big"></div>
+			<div class="middle"></div>
+			<div class="small"></div>
+		</div>
+		</div>
+		<div class="btn-wrapper">
+			<a href="#" class="play-button "  id="returnStart" >返回主界面</a>
+		</div>	
+	</div>
+	
+<!--gameloose----------->	
+		<div id="looseUi">
+			<div class="bird-loader">
+		<div class="bird animate-bird">
+		
+			<div class="big"></div>
+			<div class="middle"></div>
+			<div class="small"></div>
+		</div>
+		</div>
+		<div class="btn-wrapper">
+			<a href="#" class="play-button "  onclick="Game.start()" >再来一次</a>
+		</div>	
+	</div>
+	
+	<!--devide---------------->
+		<div class="start" id="start">
+			<h1></h1>
+			<button onclick="Game.start()">开始</button>
+		</div>
+		<div class="loose" id="loose">
+			<h1>失败是成功之母</h1>
+			<button onclick="Game.start()">再来一次</button>
+		</div>
+		<div class="win" id="win">
+			<h1>恭喜</h1>
+			<button onclick="Game.start()">再来一次</button>
+		</div>
+		<!--<div class="modal-wrapper">
+			<div class="game-ending" id="gameEnding">
+				<button id="returnStart">回到开始界面</button>
+			</div>
+		</div>-->
+
+		<div class="map-level">
+			第<span id="mapLevel"></span>关
+		</div>
+		<div class="wrapper">
+			<div class="distance">
+				距离为<span id="distance"></span>
+			</div>
+			
+			<div class="speed">
+				当前速度：<span id="speed"></span>
+			</div>
+		</div>
+			
+<!--pause blcok---------------------->
+			
+			<!--<div id="blocker">
+			<div id="instructions">
+				<span style="font-size:40px">点击继续</span>
+				<br />
+				(移动： W, A, S, D , 加速：空格space)
+			</div>-->
+
+	</body>
+	<script src="js/build/three.min.js"></script>
+	<script  src="js/jquery-2.1.0.js"></script>
+	<!--<script src="../examples/js/controls/FirstPersonControls.js"></script>-->
+	<script src="js/OrbitControls.js"></script>
+	<!--<script src="../examples/js/loaders/ColladaLoader.js"></script>
+	<script src="../examples/js/loaders/OBJLoader.js"></script>-->
+	<!--<script src="js/dat.gui.min.js"></script>-->
+	<script src="js/stats.min.js"></script>
+	<script src="js/gameMap.js"></script>
+	<script src="js/GPUParticleSystem.js" charset="utf-8"></script>
+	<script src="js/Tween.js"></script>
+	<!--<script src="../examples/js/geometries/ConvexGeometry.js"></script>-->
+	<script src="js/showModal.js"></script>
+	<script src="js/lensFare.js"></script>
+
+	<script>
+		var camera, scene, renderer;
+		var controls, stats;
+		var dLight, pointLight, spointLight, shadowLight, bird = false;
+		var crashSound;
+		var clock = new THREE.Clock();
+		var tick = 0,
+			particleSystem, options, spawnerOptions;
+		var light1, light2, light3, lightMesh;
+		var morph, spriteBall = new THREE.Object3D();
+		var mouseX = 0,
+			mouseY = 0;
+		var windowHalfX = window.innerWidth / 2;
+		var windowHalfY = window.innerHeight / 2;
+		document.addEventListener('mousemove', onDocumentMouseMove, false);
+		document.querySelector("#returnStart").addEventListener('click', function() {
+			$("#gameEnding").hide();
+			$("#startUi").show();
+			Game.reset();
+		}, false);
+		//		init();
+		//		animate();
+		//		render();
+		//游戏类，负责游戏的初始化，开始和结束等
+		var Game = (function() {
+			var hide = function(id) {
+					document.getElementById(id).style.display = "none";
+				},
+				show = function(id) {
+					document.getElementById(id).style.display = "block";
+				};
+			var lvl = 0;
+			//隐藏信息窗口
+			//显示信息窗口
+			//设置游戏运行状态
+			return {
+				win: function() {
+					music.pause();
+					music.currentTime=0;
+					
+					this.running = false;
+					this.begining = false;
+
+					if (lvl < (Maps.get_maplength() - 1)) {
+						Modal.show_winUi();
+//						alert("进入下一关");
+						if (Maps.remove_cubes())
+							Maps.set_level(++lvl);
+						Nav.reset();
+					} else {
+						Modal.show_ending();
+					}
+				},
+				loose: function() {
+//					music.currentTime=1;
+					music.pause();
+
+					
+					crashSound.play();
+					this.running = false;
+					$('#looseUi').show()
+					Nav.reset();
+					
+				},
+				start: function() {
+					Modal.hide_start();
+					$('#winUi').hide();
+					$('#looseUi').hide();
+					Game.begining = true;
+					music.play();
+					camera.tween = new TWEEN.Tween(camera.position)
+						//设定补间动画的结束值
+						.to({
+							x:0,
+							y:0,
+							z:-7
+							
+						}, 1350)
+						//循环改变状态
+						.onUpdate(function(){
+							bird.translateY(-1);
+							bird.translateZ(1);
+							camera.lookAt(bird.position)
+						})
+						.easing(TWEEN.Easing.Cubic.InOut)
+						.start()
+						//动画完成后执行
+						.onComplete(
+							function() {
+								Game.running = true;
+							}
+						);
+				},
+				rastart: function() {
+					music.play();
+					this.running = true;
+				},
+				running: function() {
+					return true
+				},
+				init: function() {
+					if (!init()) {
+						animate();
+						if (Maps.set_level(lvl));
+						Nav.set();
+//						Nav.setupGui();
+					}
+					this.running = false;
+					this.begining = false;
+				},
+				reset: function() {
+					this.running = false;
+					Nav.reset();
+					show('start');
+					Maps.remove_cubes();
+					lvl = 0;
+					Maps.set_level(0);
+				}
+			}
+		})();
+		//地图类，进行地图绘制
+		var Maps = (function() {
+			var maps = new getMap();
+			var width = 12, //地图宽度,gameMap中x轴
+				cubeScale = 200, //单个方块尺寸
+				//斜率
+				slope = 1 * Math.PI / 12,
+				mapMesh = false, //
+				collider = false, //碰撞检测
+				ymax = 0, //地图长度，gameMap中y轴
+				ground = false,
+				cubesMesh = false;
+			Meshs = [];
+			return {
+				get_maplength: function() {
+					return maps.length
+				},
+				//地图解析
+				parse_level: function(lvl) {
+					var cubeGeometry, roofGeometry;
+					var posZ = new THREE.PlaneGeometry(cubeScale, cubeScale),
+						negZ = new THREE.PlaneGeometry(cubeScale, cubeScale),
+						posX = new THREE.PlaneGeometry(cubeScale, cubeScale),
+						negX = new THREE.PlaneGeometry(cubeScale, cubeScale),
+						posY = new THREE.PlaneGeometry(cubeScale, cubeScale),
+						negY = new THREE.PlaneGeometry(cubeScale, cubeScale);
+					var position = new THREE.Vector3();
+					var rotation = new THREE.Euler();
+					var scale = new THREE.Vector3(1, 1, 1);
+					var quaternion = new THREE.Quaternion();
+					var matrix = new THREE.Matrix4();
+					//单个建筑贴图
+										rotation.y = Math.PI / 2;
+										position.x = cubeScale / 2;
+										quaternion.setFromEuler(rotation, false);
+										matrix.compose(position, quaternion, scale);
+										posX.applyMatrix(matrix);
+										
+										
+										rotation.y = -Math.PI / 2;
+										position.x = -cubeScale / 2;
+										quaternion.setFromEuler(rotation, false);
+										matrix.compose(position, quaternion, scale);
+										negX.applyMatrix(matrix);
+										
+										rotation.set(0, 0, 0);
+										position.set(0, 0, cubeScale / 2);
+										quaternion.setFromEuler(rotation, false);
+										matrix.compose(position, quaternion, scale);
+										negZ.applyMatrix(matrix);
+										
+										rotation.set(0, 0, 0);
+										position.set(0, 0, -cubeScale / 2);
+										quaternion.setFromEuler(rotation, false);
+										matrix.compose(position, quaternion, scale);
+										posZ.applyMatrix(matrix);
+										rotation.set(Math.PI / 2, 0, 0);
+										position.set(0, cubeScale / 2, 0);
+										quaternion.setFromEuler(rotation, false);
+										matrix.compose(position, quaternion, scale);
+										posY.applyMatrix(matrix);
+										
+										cubeGeometry = negX;
+										
+										cubeGeometry.merge(posX);
+										cubeGeometry.merge(posZ);
+										cubeGeometry.merge(negZ);
+
+										
+					roofGeometry = posY;
+					var building_textures = [
+						THREE.ImageUtils.loadTexture("textures/brick_bump.jpg"),
+						THREE.ImageUtils.loadTexture("textures/brick_diffuse.jpg"),
+//						THREE.ImageUtils.loadTexture("images/buildings/3.jpg"),
+//						THREE.ImageUtils.loadTexture("images/buildings/4.jpg"),
+//						THREE.ImageUtils.loadTexture("images/buildings/5.jpg")
+					];
+					building_textures[0].repeat.set(1, 1);
+					building_textures[1].repeat.set(1, 1);
+//					building_textures[2].repeat.set(1, 1);
+//					building_textures[3].repeat.set(1, 1);
+//					building_textures[4].repeat.set(1, 1);
+					building_textures.map(function(building_texture) {
+						building_texture.wrapS = building_texture.wrapT = THREE.RepeatWrapping;
+					});
+					var building_materials = [
+						new THREE.MeshPhongMaterial({
+														map: building_textures[0],
+							color: 0x9dafbc,
+							ambient: 0x777777,
+							specular: 0x999999,
+							shininess: 7,
+							shading: THREE.SmoothShading
+						}),
+						new THREE.MeshPhongMaterial({
+														map: building_textures[1],
+							color: 0x515151,
+							ambient: 0x777777,
+							specular: 0x999999,
+							shininess: 6,
+							shading: THREE.SmoothShading
+						}),
+//						new THREE.MeshPhongMaterial({
+//							//							map: building_textures[2],
+//							color: 0xffffff,
+//							ambient: 0x777777,
+//							specular: 0x999999,
+//							shininess: 15,
+//							shading: THREE.SmoothShading
+//						}),
+//						new THREE.MeshPhongMaterial({
+//							//							map: building_textures[3],
+//							color: 0xffffff,
+//							ambient: 0x777777,
+//							specular: 0x999999,
+//							shininess: 15,
+//							shading: THREE.SmoothShading
+//						}),
+//						new THREE.MeshPhongMaterial({
+//							//							map: building_textures[4],
+//							color: 0xffffff,
+//							ambient: 0x777777,
+//							specular: 0x999999,
+//							shininess: 15,
+//							shading: THREE.SmoothShading
+//						})
+					];
+					var roof_texture = THREE.ImageUtils.loadTexture("images/roof.jpg");
+					roof_texture.repeat.set(4, 4);
+					roof_texture.wrapS = roof_texture.wrapT = THREE.RepeatWrapping;
+					var roof_material = new THREE.MeshPhongMaterial({
+						map: roof_texture,
+						color: 0xffffff,
+						specular: 0x999999,
+						shininess: 15,
+						side: THREE.DoubleSide,
+						shading: THREE.SmoothShading
+					});
+					//test
+					//			roof=roofGeometry.clone();
+					//			roof.rotateX(Math.PI/2); 
+					//			var roof_1=new THREE.Mesh(roof,roof_material);
+					//			scene.add(roof_1);
+					//					var cubeGeo = new THREE.CubeGeometry(cubeScale, cubeScale, cubeScale);
+					//			var building_1=new THREE.Mesh(cubeGeometry,building_materials[0]);		
+					//			scene.add(building_1);
+					//test end
+					//获取16进制地图数据
+					var lvlString = maps[lvl].mapString,
+						cubes = [],
+						cube, roof, roofs = false,
+						i = 0,
+						h, z,
+						c, x = 0,
+						y = 0,
+						matrix, zou, zde = 0,
+						cumulated_c = "",
+						texture_indice;
+					collider = [
+						[]
+					];
+					for (i = 0; i < building_materials.length; i++) cubes.push(false);
+					for (i = 0; i < lvlString.length; i++) {
+						//取得本关地图中的一个字符，
+						c = lvlString.charAt(i);
+						//如果是换行或空，那么久继续读下一个字符 
+						if (c == "\n" || c == " ") continue;
+						//转换为十进制
+						c = (c == "A") ? "10" : c;
+						c = (c == "B") ? "11" : c;
+						c = (c == "C") ? "12" : c;
+						c = (c == "D") ? "13" : c;
+						c = (c == "E") ? "14" : c;
+						c = (c == "F") ? "15" : c;
+						//十进制转换二进制
+						c = parseInt(c).toString(2);
+						//不足4位添0
+						while (c.length < 4) c = "0" + c;
+						//累计为8位
+						cumulated_c = c + cumulated_c;
+						zde++; //计数器
+						//每个方块元素占2个字符，转换为二进制就是8位
+						if (zde < maps[lvl].charsPerElement) {
+							continue;
+						}
+						//构件一幢楼的代码如下
+						zde = 0; //zde计数归零
+						zou = []; //如果为true,表示有建筑，false表示无，用于碰撞检测
+						for (h = 0; h < cumulated_c.length; h++) {
+							//每一层楼的高度
+							z = (h - cumulated_c.length);
+							//判断此楼层是否存在
+							if (cumulated_c.charAt(cumulated_c.length - h - 1) === "0") {
+								zou.push(false);
+								continue;
+							}
+							zou.push(true);
+							var cubeGeo = new THREE.CubeGeometry(cubeScale, cubeScale, cubeScale);
+							cube = cubeGeo.clone();
+//							cube.rotateX(Math.random() * Math.PI * 100);
+							cube.rotateY(Math.random() * Math.PI);
+							//				cube.rotateZ(Math.random()*Math.PI);
+							roof = roofGeometry.clone();
+							roof.rotateX(Math.PI / 2);
+							roof.translate(0, cubeScale / 2 + 0.01, 0);
+							//
+							//			    scene.add(new THREE.Mesh(cube,building_materials[0]));
+							//一幢楼随机材质
+							texture_indice = Math.floor(Math.random() * building_materials.length);
+							//指定移动位置
+							matrix.makeTranslation((x - width / 2) * cubeScale, z * cubeScale, y * cubeScale);
+							cube.applyMatrix(matrix);
+							roof.applyMatrix(matrix);
+							//将所有天花板合并
+							if (roofs) {
+								roofs.merge(roof);
+							} else {
+								roofs = roof;
+							}
+							//	将相同材质的外墙合并，更利于绘制，不同材质的外墙合并，绘制的时候会有问题。
+							if (cubes[texture_indice]) {
+								cubes[texture_indice].merge(cube);
+							} else {
+								cubes[texture_indice] = cube;
+							}
+						}
+						//设置碰撞检测
+						//将一个地图方块上的建筑物标准放入数组collider中
+						collider[y][x] = zou;
+						//变换x,y的位置，移动到下一个地面方块
+						x++;
+						cumulated_c = "";
+						if (x >= width) {
+							x = 0;
+							y++;
+							collider[y] = [];
+						}
+						//			   console.log(x,y,z);
+					}
+					//目前解析行
+					ymax = y;
+					//构件不同材质的建筑物和天花板并加入场景中
+					for (i = 0; i < cubes.length; i++) {
+						if (!cubes[i]) continue;
+						cubesMesh = new THREE.Mesh(cubes[i], building_materials[i]);
+						cubesMesh.castShadow = true;
+						cubesMesh.receiveShadow = true;
+						//						scene.add(cubesMesh);
+						Meshs.push(cubesMesh);
+						scene.add(cubesMesh);
+					}
+					var roofMesh = new THREE.Mesh(roofs, roof_material);
+//					scene.add(roofMesh);
+					Meshs.push(roofMesh);
+					return true;
+				},
+				//设置地面
+				set_ground: function() {
+					var ground_texture = THREE.ImageUtils.loadTexture("images/ground.jpg");
+					ground_texture.repeat.set(width, ymax);
+					ground_texture.wrapS = ground_texture.wrapT = THREE.RepeatWrapping;
+					var ground_material = new THREE.MeshPhongMaterial({
+						map: ground_texture,
+						color: 0x2b2b2b,
+						side: THREE.DoubleSide,
+						shading: THREE.SmoothShading
+					});
+					var groundGeometry = new THREE.PlaneGeometry(width * cubeScale, ymax * cubeScale / Math.cos(slope));
+					var matrix = new THREE.Matrix4();
+					matrix.makeRotationX(-Math.PI / 2);
+					groundGeometry.applyMatrix(matrix);
+					var groundMesh = new THREE.Mesh(groundGeometry, ground_material);
+					groundMesh.receiveShadow=true;
+					//地面位置
+					groundMesh.translateX(-0.5 * cubeScale);
+					groundMesh.translateY(-this.get_lvlHeight() * cubeScale - 10);
+					groundMesh.translateZ(ymax * 0.5 * cubeScale - 0.5 * cubeScale);
+					groundMesh.updateMatrix();
+					scene.add(groundMesh);
+				},
+				set_sides: function() {},
+				//设置关卡
+				set_level: function(lvl) {
+					this.current = lvl;
+					this.parse_level(lvl);
+					this.set_ground();
+					Modal.show_lvl(lvl);
+					spriteAnimation();
+				},
+				//碰撞检测
+				collide: function(position) {
+					//有位置计算出所在地面的方块	
+					var x = Math.round(position.x / cubeScale + width / 2),
+						y = Math.round(position.z / cubeScale);
+					//换算出所在楼层
+					var z = Math.round(this.get_lvlHeight() + position.y / cubeScale);
+					//如果碰到了地面，返回true
+					if (this.get_lvlHeight() * cubeScale + position.y < -0.1 * cubeScale) return true;
+					//超出地图的侧面，返回true
+					if (x < 0 || x >= width) return true;
+					//y<0,表示飞机未进入地图，不能被碰撞
+					if (y < 0) return false;
+					//如果飞出地图，则表示游戏成功
+					if (y >= collider.length - 1) {
+						Game.win();
+						return false;
+					}
+					//  
+					return collider[y][x][z];
+				},
+				//获得地图宽度
+				get_width: function() {
+					return width;
+				},
+				//获取斜率
+				get_slope: function() {
+					return slope
+				},
+				get_ymax: function(y) {
+					return -y * Math.sin(slope);
+				},
+				//获得地图标准建筑物的高度
+				get_lvlHeight: function() {
+					return maps[this.current].charsPerElement * 4;
+				},
+				remove_cubes: function() {
+					alert(1);
+					console.log(Meshs);
+					Meshs.forEach(function(mesh) {
+						scene.remove(mesh);
+					});
+					console.log(Meshs);
+					return true;
+				}
+			}
+		})(); //地图类，负责存储地图数据，关卡数据和碰撞检测。
+		//控制类
+		var speed = 8;
+		var Nav = (function() {
+			var X_sensibility = 0.02, //左右操作灵敏度
+				Y_sensibility = 0.02, //上下操作灵敏度
+				fallspeed = 0.8,
+				back = 1.08, //回弹速率      
+				theta = 0, //x轴夹角
+				gamespeed = 50, //游戏难度
+				phiMin = -Math.PI / 4,
+				phi = 0; //y轴夹角
+			var fall = -speed * Math.sin(Maps.get_slope()) * 0.1;
+			var keyDowns = [],
+				moveTheta = false,
+				movePhi = false,
+				delta = 0;
+			a = 1;
+			var params;
+			return {
+				getSpeed: function() {
+					return speed;
+				},
+				keydown: function(event) {
+					event.preventDefault();
+					switch (event.keyCode) {
+						case 37: //left arrow
+							Nav.addKeyDown(37);
+							break;
+						case 39: //right arrow
+							Nav.addKeyDown(39);
+							break;
+						case 38: //up arrow
+							Nav.addKeyDown(38);
+							break;
+						case 40: //down arrow
+							Nav.addKeyDown(40);
+							break;
+						case 65: //left arrow
+							Nav.addKeyDown(65);
+							break;
+						case 68: //right arrow
+							Nav.addKeyDown(68);
+							break;
+						case 87: //up arrow
+							Nav.addKeyDown(87);
+							break;
+						case 83: //down arrow
+							Nav.addKeyDown(83);
+							break;
+						case 32: //speed up arrow
+							Nav.addKeyDown(32);
+							break;
+					}
+				},
+				keyup: function(event) {
+					event.preventDefault();
+					switch (event.keyCode) {
+						case 37: //left arrow
+							Nav.delKeyDown(37);
+							break;
+						case 39: //right arrow
+							Nav.delKeyDown(39);
+							break;
+						case 38: //up arrow
+							Nav.delKeyDown(38);
+							break;
+						case 40: //down arrow
+							Nav.delKeyDown(40);
+							break;
+						case 32: //speed up arrow
+							Nav.delKeyDown(32);
+							//								scene.remove( particleSystem)
+							break;
+						case 65: //left arrow
+							Nav.delKeyDown(65);
+							break;
+						case 68: //right arrow
+							Nav.delKeyDown(68);
+							break;
+						case 87: //up arrow
+							Nav.delKeyDown(87);
+							break;
+						case 83: //down arrow
+							Nav.delKeyDown(83);
+							break;
+					}
+				},
+				addKeyDown: function(keyCode) {
+					if (keyDowns.indexOf(keyCode) !== -1) return;
+					keyDowns.push(keyCode);
+				},
+				delKeyDown: function(keyCode) {
+					keyDowns.splice(keyDowns.indexOf(keyCode), 1);
+				},
+				set: function() {
+					document.onkeydown = this.keydown;
+					document.onkeyup = this.keyup;
+				},
+				unset: function() {
+					document.onkeydown = null;
+					document.onkeyup = null;
+				},
+				move: function(keyCode) {
+					switch (keyCode) {
+						case 37: //left
+							Nav.moveXY(1, 0);
+							moveTheta = true;
+							break;
+						case 39: //right
+							Nav.moveXY(-1, 0);
+							moveTheta = true;
+							break;
+						case 38: //up 
+							Nav.moveXY(0, 1);
+							movePhi = true;
+							break;
+						case 40: //down 
+							Nav.moveXY(0, -1);
+							movePhi = true;
+							break;
+						case 65: //left
+							Nav.moveXY(1, 0);
+							moveTheta = true;
+							break;
+						case 68: //right
+							Nav.moveXY(-1, 0);
+							moveTheta = true;
+							break;
+						case 87: //up 
+							Nav.moveXY(0, 1);
+							movePhi = true;
+							break;
+						case 83: //down 
+							Nav.moveXY(0, -1);
+							movePhi = true;
+							break;
+					}
+				},
+				moveXY: function(x, y) {
+					theta += x * X_sensibility * delta;
+					if (y > 0 || phi > phiMin) phi += y * Y_sensibility * delta;
+					//    console.log(phi,theta);
+				},
+				speedup: function(keyCode) {
+					if (keyCode == 32) {
+
+						if (speed > 30) {
+							tweenBack = new TWEEN.Tween()
+								.onUpdate(function() {
+									speed = speed - a;
+								})
+								.easing(TWEEN.Easing.Elastic.InOut)
+								.start();
+						}
+						else{
+								tween = new TWEEN.Tween()
+							.onUpdate(function() {
+								speed = speed + a;
+								//				console.log(speed);
+							})
+							.easing(TWEEN.Easing.Elastic.InOut)
+							.start();
+						}
+						//			bird.tween.chain(bird.tweenBack);
+						//			bird.tweenBack.chain(bird.tween);
+					}
+					
+					return speed;
+				},
+				update: function(raw_delta) {
+					delta = raw_delta * gamespeed;
+					//若模型未加载，直接返回
+					if (!bird) return;
+					//如果发生碰撞，游戏结束
+					if (Maps.collide(bird.position)) {
+						Game.loose();
+					}
+					//theta表示左右移动，phi上下移动
+					moveTheta = false;
+					movePhi = false;
+					//遍历数组，传入Nav中的move方法
+					keyDowns.map(Nav.move);
+					keyDowns.map(Nav.speedup);
+					//当没有按下操作按钮是,飞行器自动调整位置
+					if (!moveTheta) theta /= back;
+					if (!movePhi) phi /= back;
+					if (Game.running) {
+						if (Maps.get_ymax(bird.position.y) < bird.position.y) { // && Math.sin(phi)<=0.1) { //redresse le zdé
+							bird.translateY(delta * (fall - fallspeed * 0.5));
+																  phi+=Y_sensibility*delta+0.04;
+//																  theta+=Y_sensibility*delta-0.04;
+						}
+						//根据角度移动飞行器位置
+						bird.translateY(delta * (fall - speed * Math.sin(phi)));
+						bird.translateZ(delta * (speed * Math.cos(theta) * Math.cos(phi)));
+						bird.translateX(delta * speed * Math.sin(theta));
+						//					for(var i=1;i<=spriteBall.children.length;i++){
+						//						if(spriteBall.children[i]){
+						//						console.log(spriteBall.children[i]);
+						////						if(spriteBall.children[i].position.x<=bird.position.x)
+						////						scene.remove(spriteBall.children[i]);
+						//						}
+						//						}
+						//飞行器自身旋转
+						bird.rotation.y = theta * 1.5;
+						bird.rotation.x = phi * 1.5;
+						bird.rotation.z = -theta;
+						//		//纠正飞行器位置
+						//	bird.rotateX(-1.6);
+						camera.position.copy(bird.position);
+						camera.position.z -= 50 * (1 + Math.sin(-phi / 3));
+						camera.position.x -= 100 * Math.sin(theta / 3);
+						camera.position.y -= 20 * (-1 + Math.sin(-phi / 3));
+						camera.lookAt(bird.position);
+					}
+					//相机跟随飞行器移动
+					//						THREE.Math.clamp( camera.position.y + ( - mouseY - camera.position.y ) * .05, 0, 10 );
+					options.position.copy(bird.position);
+					options.position.z -= 0.5;
+					options.position.x -= -0.5 * Math.sin(theta / 3);
+					options.position.y -= -0.2 * (-1 + Math.sin(-phi / 3));
+					//						光线跟随移动
+					    spotLight.position.copy(bird.position);
+					    spotLight.position.z-=200*(1+Math.sin(-phi));
+					    spotLight.position.x-=100*Math.sin(theta/3);
+					    spotLight.position.y+=100*(0.9+Math.sin(phi/3));
+					    spotLight.lookAt(bird.position);
+					////
+					    shadowLight.position.copy(spotLight.position);
+					    shadowLight.lookAt(bird.position);
+					//   
+					//    pointLight.position.copy(bird.position);
+					//    pointLight.position.z-=2;
+					//     pointLight.position.y-=10;
+					//gui update
+					if (!Game.running && !Game.begining) {
+						bird.position.y = 3;
+						camera.position.y = -1;
+						camera.position.z = 20;
+						camera.position.x = 9;
+						camera.position.x += (mouseX - camera.position.x) * .001;
+						camera.position.y += (mouseY - camera.position.y) * .002;
+						camera.lookAt(bird.position);
+					}
+					if (bird) {
+						morph = bird;
+						morph.mixer.update(delta * 0.01 * (1 + speed / 100));
+					}
+					Modal.show_speed(Math.floor(speed)*10);
+					speed=8;
+//					Nav.updateGui();
+					Modal.show_distance(Math.floor(bird.position.z / 10));
+
+					return true;
+				},
+				reset: function() {
+					theta = phi = 0;
+					bird.position.set(0, 0, 0);
+				},
+//				setupGui: function() {
+//					var gui = new dat.GUI();
+//					params = {
+//						speed: 8,
+//						position: 10,
+//					};
+//					gui.add(params, "speed", 0.1, 10);
+//					gui.add(params, "position", 10, 100);
+//					gui.add(options, "velocityRandomness", 0, 3);
+//					gui.add(options, "positionRandomness", 0, 3);
+//					gui.add(options, "size", 1, 20);
+//					gui.add(options, "sizeRandomness", 0, 25);
+//					gui.add(options, "colorRandomness", 0, 1);
+//					gui.add(options, "lifetime", .1, 10);
+//					gui.add(options, "turbulence", 0, 1);
+//					gui.add(spawnerOptions, "spawnRate", 10, 30000);
+//					gui.add(spawnerOptions, "timeScale", -1, 100);
+//					gui.open();
+//					speed = params.speed;
+//				},
+//				updateGui: function() {
+//					speed = params.speed;
+//				}
+			}
+		})(); //飞行器控制类
+		function main() {
+			Game.init();
+			return true;
+		};
+		if (main() == 1) {
+			setTimeout(function() {
+				document.querySelector('#loader-wrapper').style.display = "none";
+			}, 500);
+		}
+
+		function init() {
+			var container = document.createElement('div');
+			document.body.appendChild(container);
+			//music
+						music = document.createElement("audio");
+						var sourceMusic = document.createElement("source");
+						sourceMusic.src = "audio/china_girl.mp3";
+						music.loop = true;
+						music.preload = true;
+						music.autoplay = false;
+						music.appendChild(sourceMusic);
+			crashSound = document.createElement("audio");
+			var sourceMusicCrash = document.createElement("source");
+			sourceMusicCrash.src = "audio/crash.ogg";
+			crashSound.loop = false;
+			crashSound.preload = true;
+			crashSound.autoplay = false;
+			crashSound.appendChild(sourceMusicCrash);
+			crashSound.onended = crashSound.pause;
+			//scene
+			scene = new THREE.Scene();
+			scene.fog = new THREE.FogExp2(0x000022, 0.0007);
+			scene.add(new THREE.AxisHelper(200));
+			//camera
+			camera = new THREE.PerspectiveCamera(60, (window.innerWidth / window.innerHeight), 1, 1e10);
+			camera.position.set(0, 6, -6);
+			camera.lookAt(new THREE.Vector3(0, -60, 100));
+			camera.updateMatrix();
+			scene.add(camera);
+			// Mouse control
+			controls = new THREE.OrbitControls(camera);
+			controls.movementSpeed = 10;
+			controls.lookSpeed = 0.1;
+			//light
+			var ambientLight = new THREE.AmbientLight(0x243F6E);
+//			scene.add(ambientLight);
+			scene.add( new THREE.HemisphereLight( 0x243F6E, 0x9E5C0C,2 ))
+			pointLight = new THREE.PointLight(0xff6600, 1, 50);
+//			scene.add(pointLight);
+			spotLight = new THREE.SpotLight(0xEFEBCF, 1, 0, Math.PI/6 , 1);
+			spotLight.position.set(0, 100, -200);
+			spotLight.castShadow = true;
+//			spotLight.target = bird;
+			scene.add(spotLight);
+			
+//			spotLight.visible=false;
+//			spotLight.exponenet=1;
+			
+			var sphereSize = 1;
+			var pointLightHelper = new THREE.SpotLightHelper(spotLight, sphereSize);
+//			scene.add(pointLightHelper);
+			shadowLight = new THREE.DirectionalLight(0x2C61CC, 1);
+			shadowLight.position.set(0, 100, 200);
+//			shadowLight.castShadow = true;
+						shadowLight.shadowCameraNear = -200;
+						shadowLight.shadowCameraFar = 200;
+						shadowLight.shadowCameraLeft = -200;
+						shadowLight.shadowCameraRight = 200;
+						shadowLight.shadowCameraTop = 100;
+						shadowLight.shadowCameraBottom = -100;
+						shadowLight.shadowBias = 0;
+						shadowLight.shadowDarkness = 0.25;
+						shadowLight.shadowMapWidth = 512;
+						shadowLight.shadowMapHeight = 512;
+						scene.add(new THREE.CameraHelper(shadowLight.shadow.camera));
+			scene.add(shadowLight);
+			
+//			shadowLight.visible=false;
+			//renderer
+			renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
+			renderer.setClearColor(0x2b2b2b);
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			container.appendChild(renderer.domElement);
+			renderer.render(scene, camera);
+			
+			renderer.shadowMapEnabled = true;
+			renderer.shadowMapSoft = true;	
+			//mesh
+			//			var geo = new THREE.CubeGeometry(50, 50, 50);
+			//			var material = new THREE.MeshLambertMaterial({
+			//				color: 0x666666
+			//			});
+			//			var Cube = new THREE.Mesh(geo, material);
+			//			Cube.position.set(0, 0, 0);
+			//			scene.add(Cube);
+			light1 = new THREE.PointLight(0xff0040, 0.01, 0);
+			scene.add(light1);
+			light2 = new THREE.PointLight(0x0040ff, 0.1, 0);
+			scene.add(light2);
+			light3 = new THREE.PointLight(0x80ff80, 0.01, 0);
+			scene.add(light3);
+			var sphere = new THREE.SphereGeometry(1, 16, 8, 1);
+			lightMesh = new THREE.Mesh(sphere, new THREE.MeshBasicMaterial({
+				color: 0x2b2b2b
+			}));
+			scene.add(lightMesh);
+			
+				var lensLight=new lensFlares.addLight( 0.55, 0.9, 0.5, -500, 600, -1000 );
+			//skyBox
+			var r = "images/skybox/";
+			var urls = [r + "posx.jpg", r + "negx.jpg",
+				r + "posy.jpg", r + "negy.jpg",
+				r + "posz.jpg", r + "negz.jpg"
+			];
+			var textureCube = THREE.ImageUtils.loadTextureCube(urls); //加载六张图片的方法
+			textureCube.format = THREE.RGBFormat; //将图片的颜色模式设为RGB
+			var shader = THREE.ShaderLib["cube"];
+			shader.uniforms["tCube"].value = textureCube;
+			var material = new THREE.ShaderMaterial({
+				fragmentShader: shader.fragmentShader,
+				vertexShader: shader.vertexShader,
+				uniforms: shader.uniforms,
+				depthWrite: false,
+				side: THREE.BackSide
+			});
+			var skyBox = new THREE.Mesh(new THREE.BoxGeometry(50000, 50000, 50000), material);
+			scene.add(skyBox);
+			//loader,载入飞行器模型
+			//			var	cubeCamera = new THREE.CubeCamera( 1, 1000, 256 );
+			//				cubeCamera.renderTarget.texture.minFilter = THREE.LinearMipMapLinearFilter;
+			//				scene.add(cubeCamera);
+			//			var loader = new THREE.OBJLoader();
+			//			loader.load( '../examples/models/obj/plane.obj', function ( object ) {
+			//
+			//				object.traverse( function ( child ) {
+			//
+			//					if ( child instanceof THREE.Mesh ) {
+			//
+			////					child.material. envMap=cubeCamera.renderTarget;
+			//
+			//					}
+			//
+			//				} );
+			//				bird=object;
+			//				bird.scale.set(0.03,0.03,0.03);
+			//				bird.position.z= 0;
+			//				scene.add( bird );
+			//
+			//			} );
+			function addMorph(geometry, speed, duration, x, y, z, fudgeColor) {
+				var material = new THREE.MeshLambertMaterial({
+					color: 0xffaa55,
+					morphTargets: true,
+					vertexColors: THREE.FaceColors,
+					wireframe:false
+//					 envMap: cubeCamera.renderTarget
+				});
+				if (fudgeColor) {
+					material.color.offsetHSL(0, Math.random() * 0.5 - 0.25, Math.random() * 0.5 - 0.25);
+				}
+				var mesh = new THREE.Mesh(geometry, material);
+				mesh.speed = speed;
+				var mixer = new THREE.AnimationMixer(mesh);
+				mixer.addAction(new THREE.AnimationAction(geometry.animations[0]).warpToDuration(duration));
+				mixer.update(600 * Math.random());
+				mesh.mixer = mixer;
+				mesh.position.set(x, y, z);
+				//					mesh.rotation.y = Math.PI/2;
+				mesh.castShadow = true;
+//				mesh.receiveShadow = true;
+				scene.add(mesh);
+				bird = mesh;
+				bird.scale.set(0.5, 0.5, 0.5);
+				spotLight.target=bird;
+			}
+			var loader = new THREE.JSONLoader();
+			loader.load("model/parrot.js", function(geometry) {
+				addMorph(geometry, 450, 0.5, 0, 0, 0);
+			});
+			//粒子系统
+			particleSystem = new THREE.GPUParticleSystem({
+				maxParticles: 250000
+			});
+			scene.add( particleSystem);
+			options = {
+				position: new THREE.Vector3(),
+				positionRandomness: .3,
+				velocity: new THREE.Vector3(),
+				velocityRandomness: 1,
+				color: 0xaa88ff,
+				colorRandomness: .2,
+				turbulence: .5,
+				lifetime: 2,
+				size: 5,
+				sizeRandomness: 1
+			};
+			spawnerOptions = {
+					spawnRate: 15000,
+					horizontalSpeed: 1.5,
+					verticalSpeed: 1.33,
+					timeScale: 10
+				}
+				//			var loader=new THREE.ColladaLoader();
+				//			loader.load('../examples/models/collada/bird.dae',function colladaReady(collada){
+				//				var tScene=collada.scene;
+				////				skin=collada.skins[0];
+				//				
+				//				tScene.scale.x=tScene.scale.y=tScene.scale.y=1;
+				//				tScene.updateMatrix();
+				//				spotLight.target=tScene;
+				//				shadowLight.target=tScene;
+				//				bird=tScene;
+				//				bird.children[0].castshadow=true;
+				//				bird.children[0].receiveShadow=true;
+				//				bird.position.set(0,0,0);
+				//
+				//				camera.lookAt(bird.position);
+				//				camera.updateMatrix();
+				//				scene.add(bird);
+				//
+				//
+				//				
+				//			});
+				//stats
+			stats = new Stats();
+			stats.domElement.style.position = 'absolute';
+			stats.domElement.style.top = '0px';
+			stats.domElement.style.zIndex = 100;
+			container.appendChild(stats.domElement);
+			//适应窗口调整
+			window.addEventListener('resize', onWindowResize, false);
+			//游戏参数控制GUI
+			//
+			return 0;
+		}
+
+		function onWindowResize() {
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+			renderer.setSize(window.innerWidth, window.innerHeight);
+		}
+
+		function onDocumentMouseMove(event) {
+			mouseX = (event.clientX - windowHalfX);
+			mouseY = (event.clientY - windowHalfY);
+		}
+
+		function animate() {
+			requestAnimationFrame(animate);
+			TWEEN.update();
+			render();
+			stats.update();
+		}
+
+		function render() {
+			//
+			var delta = clock.getDelta(),
+				time = clock.getElapsedTime() * 10;
+//									controls.update();
+			Nav.update(delta);
+			updateParticleSystem();
+			lightpointMove();
+			renderer.render(scene, camera);
+		}
+
+		function updateParticleSystem() {
+			var delta_p = clock.getDelta() * spawnerOptions.timeScale;
+			tick += delta_p;
+			//				console.log(delta_p,tick);
+			if (tick < 0) tick = 0;
+			if (delta_p > 0) {
+				//      options.position.x = Math.sin(tick * spawnerOptions.horizontalSpeed) * 20;
+				//      options.position.y = Math.sin(tick * spawnerOptions.verticalSpeed) * 10;
+				//      options.position.z = Math.sin(tick * spawnerOptions.horizontalSpeed + spawnerOptions.verticalSpeed) * 5;
+				for (var x = 0; x < spawnerOptions.spawnRate * delta_p; x++) {
+					// Yep, that's really it.  Spawning particles is super cheap, and once you spawn them, the rest of
+					// their lifecycle is handled entirely on the GPU, driven by a time uniform updated below
+//					particleSystem.spawnParticle(options);
+				}
+			}
+			particleSystem.update(tick);
+		}
+
+		function lightpointMove() {
+			if (light1) {
+				var delta = clock.getDelta(),
+					time = clock.getElapsedTime() * 10;
+				light1.position.x = Math.sin(time * 0.7) * 3;
+				light1.position.y = Math.cos(time * 0.5) * 4;
+				light1.position.z = Math.cos(time * 0.3) * 3;
+				light2.position.x = Math.cos(time * 0.3) * 30;
+				light2.position.y = Math.sin(time * 0.5) * 40;
+				light2.position.z = Math.sin(time * 0.7) * 30;
+				light3.position.x = Math.sin(time * 0.7) * 30;
+				light3.position.y = Math.cos(time * 0.3) * 40;
+				light3.position.z = Math.sin(time * 0.5) * 30;
+				lightMesh.position.copy(light1);
+			}
+		}
+
+		function createSprite(x, y, z, bou) {
+			var sphere = new THREE.SphereGeometry(100, 20, 20);
+			var materials = [
+				new THREE.MeshBasicMaterial({
+					color: 0x00ffff,
+					wireframe: true,
+					side: THREE.DoubleSide
+				}),
+				new THREE.MeshBasicMaterial({
+					color: 0xff0000,
+					blending: THREE.AdditiveBlending
+				}),
+			];
+			var mesh = new THREE.Mesh(sphere, materials[1]);
+			mesh.position.set(x, y, z);
+			spriteBall.add(mesh);
+			bou.push(mesh);
+			scene.add(spriteBall);
+		}
+
+		function spriteAnimation() {
+			spriteBall.tween = new TWEEN.Tween(spriteBall)
+				.onUpdate(function() {
+					this.position.y++;
+				})
+				.easing(TWEEN.Easing.Elastic.InOut)
+				.start();
+			spriteBall.tweenBack = new TWEEN.Tween(spriteBall)
+				.onUpdate(function() {
+					this.position.y--;
+				})
+				.easing(TWEEN.Easing.Elastic.InOut)
+				.start();
+			spriteBall.tween.chain(spriteBall.tweenBack);
+			spriteBall.tweenBack.chain(spriteBall.tween);
+		}
+
+		function createConvexGeo(x, y, z) {
+			var points = [];
+			//			debugger;
+			for (var i = 0; i < 20; i++) {
+				var randomX = -15 + Math.round(Math.random() * x * 2);
+				var randomY = -15 + Math.round(Math.random() * y * 2);
+				var randomZ = -15 + Math.round(Math.random() * x * 2);
+				points.push(new THREE.Vector3(randomX, randomY, randomZ));
+			}
+			var spGroup = new THREE.Object3D();
+			var material = new THREE.MeshBasicMaterial({
+				color: 0xfff00,
+				transparent: false
+			});
+			//			points.forEach(function (point){
+			//				
+			//				var spGeom=new THREE.SphereGeometry(1);
+			//				var spMesh=new THREE.Mesh(spGeom,material);
+			//				spMesh.position.set(point.x,point.y,point.z);
+			//				
+			//				spGroup.add(spMesh);
+			//				
+			//			});
+			//			
+			//			scene.add(spGroup);
+			var convexGeo = new THREE.ConvexGeometry(points);
+			console.log(convexGeo);
+			//			var	convexMesh=new THREE.Mesh(convexGeo,new THREE.MeshBasicMaterial( { color: 0x666666,  transparent: true } ));
+			//			scene.add(convexMesh);
+			return convexGeo;
+		}
+	</script>
+	
+		<!--<script src="js/pauseBlcok.js"></script>-->
+
+</html>
